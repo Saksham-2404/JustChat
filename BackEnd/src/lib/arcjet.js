@@ -1,5 +1,5 @@
 import {ENV} from "./env.js";
-import arcjet, { shield, detectBot, tokenBucket } from "@arcjet/node";
+import arcjet, { shield, detectBot, slidingWindow } from "@arcjet/node";
 
 const aj = arcjet({
   // Get your site key from https://console.arcjet.com and set it as an environment
@@ -10,7 +10,7 @@ const aj = arcjet({
     shield({ mode: "LIVE" }),
     // Create a bot detection rule
     detectBot({
-      mode: "LIVE", // Blocks requests. Use "DRY_RUN" to log only
+      mode: "DRY_RUN", // Blocks requests. Use "DRY_RUN" to log only
       // Block all bots except the following
       allow: [
         "CATEGORY:SEARCH_ENGINE", // Google, Bing, etc
@@ -24,8 +24,8 @@ const aj = arcjet({
     slidingWindow({
       mode: "LIVE", // Blocks requests. Use "DRY_RUN" to log only
       // Limit to 100 requests per minute per IP address
-      limit: 100,
-      window: 60 * 1000, // 1 minute
+      max: 100,
+      interval: 60 * 1000, // 1 minute
     })
   ],
 });
