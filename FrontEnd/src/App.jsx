@@ -1,71 +1,43 @@
 import React from 'react'
-import { Route, Routes } from 'react-router'
-import ChatPage from './pages/ChatPage'
-import LoginPage from './pages/LoginPage'
-import SignUpPage from './pages/SignUpPage'
-import { useAuthStore } from './store/useAuthStore'
+import { Navigate, Route, Routes } from 'react-router'
+import ChatPage from './pages/ChatPage.jsx'
+import LoginPage from './pages/LoginPage.jsx'
+import SignUpPage from './pages/SignUpPage.jsx'
+import { useAuthStore } from './store/useAuthStore.js'
+import { useEffect } from 'react'
+import PageLoader from './components/PageLoader.jsx'
+import { Toaster } from 'react-hot-toast'
 
-
-const bgStyle = `
-  @keyframes aurora {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  .aurora-bg {
-    min-height: 100vh;
-    width: 100%;
-    background: linear-gradient(
-      -45deg,
-      #0d0d1a,
-      #0d1f3c,
-      #0a2a2a,
-      #1a0d2e,
-      #0d1f3c,
-      #0d2a1a
-    );
-    background-size: 400% 400%;
-    animation: aurora 12s ease infinite;
-    position: relative;
-  }
-  .aurora-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 50% at 20% 30%, rgba(120, 80, 255, 0.15) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 40% at 80% 70%, rgba(0, 200, 180, 0.12) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 40% at 60% 20%, rgba(180, 60, 255, 0.1) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .aurora-bg > * {
-    position: relative;
-    z-index: 1;
-  }
-`
 
 
 function App() {
-  const {authUser,login,isLoggedIn} = useAuthStore();
-  console.log("auth user:", authUser);
-  console.log("isLogged in:", isLoggedIn);
-  return (
-    <>
-          <style>{bgStyle}</style>
-    <div className="aurora-bg">
+ 
+    const { checkAuth, isCheckingAuth, authUser } = useAuthStore()
+    useEffect(() => {
+      checkAuth()
+    },[checkAuth])
+    console.log("authUser", authUser)
 
-    <button onClick={login}>
-      Login
-    </button>
+    if(isCheckingAuth) return <PageLoader />
+
+  return (
+    
+          <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
+      {/* DECORATORS - GRID BG & GLOW SHAPES */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f2e_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f2e_1px,transparent_1px)] bg-[size:14px_24px]" />
+      <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
+      <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
+
+    
       <Routes>
-        <Route path="/" element={<ChatPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
+        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
+        <Route path="/signup" element={!authUser ? <SignUpPage /> : <Navigate to={"/"} />} />
 
       </Routes>
+      <Toaster/>
     </div>
-      </>
+      
   )
 }
 
